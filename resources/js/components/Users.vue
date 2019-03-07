@@ -30,7 +30,7 @@
                                 <a href="#" alt="Edit">
                                     <i class="list-action-icon fas fa-edit"></i>
                                 </a>
-                                <a href="#" alt="Delete">
+                                <a href="#" @click="deleteUser(user.id)">
                                     <i class="list-action-icon fas fa-trash"></i>
                                 </a>
                             </td>
@@ -113,22 +113,79 @@
             },
             createUser(){
                 this.$Progress.start();
-                this.form.post('api/user');
-                Fire.$emit('AfterCreate');
+                this.form.post('api/user')
 
-                $('#addNewModal').modal('hide');
+                .then(()=>{
+                    Fire.$emit('AfterAction');
 
-                Toast.fire({
-                type: 'success',
-                title: 'User created successfully'
+                    $('#addNewModal').modal('hide');
+
+                    Toast.fire({
+                        type: 'success',
+                        title: 'Success',
+                        text: this.form.name + 'successfully added'
+                    })
+
+                    this.$Progress.finish();
                 })
 
-                this.$Progress.finish();
+                .catch(()=>{
+                    
+                    this.$Progress.fail();
+                    Toast.fire({
+                        type: 'error',
+                        title: 'Oops...',
+                        text: 'Something went wrong!'
+                        
+                    })
+                })
+
+                
+            },
+            
+            deleteUser(id){
+                Toast.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes'
+                    })
+                .then((result) => {
+                    
+                    //Delete 
+                    if (result.value) {
+                        
+                        this.$Progress.start();
+                        this.form.delete('api/user/'+id)
+                        .then(()=>{
+                            Toast.fire(
+                            'Deleted!',
+                            'User has been deleted.',
+                            'success'
+                            )
+                            this.$Progress.finish();
+                            Fire.$emit('AfterAction');
+                        })
+                        .catch(()=>{
+                            
+                            this.$Progress.fail();
+                            Toast.fire({
+                                type: 'error',
+                                title: 'Oops...',
+                                text: 'Something went wrong!'
+                                
+                            })
+                        })
+                    }
+                })
             }
         },
         mounted() {
             this.loadUsers();
-            Fire.$on('AfterCreate',()=>{
+            Fire.$on('AfterAction',()=>{
                 this.loadUsers();
             });
             // setInterval(() => this.loadUsers(), 3000);

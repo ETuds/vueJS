@@ -2024,23 +2024,70 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     createUser: function createUser() {
+      var _this2 = this;
+
       this.$Progress.start();
-      this.form.post('api/user');
-      Fire.$emit('AfterCreate');
-      $('#addNewModal').modal('hide');
-      Toast.fire({
-        type: 'success',
-        title: 'User created successfully'
+      this.form.post('api/user').then(function () {
+        Fire.$emit('AfterAction');
+        $('#addNewModal').modal('hide');
+        Toast.fire({
+          type: 'success',
+          title: 'Success',
+          text: _this2.form.name + 'successfully added'
+        });
+
+        _this2.$Progress.finish();
+      }).catch(function () {
+        _this2.$Progress.fail();
+
+        Toast.fire({
+          type: 'error',
+          title: 'Oops...',
+          text: 'Something went wrong!'
+        });
       });
-      this.$Progress.finish();
+    },
+    deleteUser: function deleteUser(id) {
+      var _this3 = this;
+
+      Toast.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes'
+      }).then(function (result) {
+        //Delete 
+        if (result.value) {
+          _this3.$Progress.start();
+
+          _this3.form.delete('api/user/' + id).then(function () {
+            Toast.fire('Deleted!', 'User has been deleted.', 'success');
+
+            _this3.$Progress.finish();
+
+            Fire.$emit('AfterAction');
+          }).catch(function () {
+            _this3.$Progress.fail();
+
+            Toast.fire({
+              type: 'error',
+              title: 'Oops...',
+              text: 'Something went wrong!'
+            });
+          });
+        }
+      });
     }
   },
   mounted: function mounted() {
-    var _this2 = this;
+    var _this4 = this;
 
     this.loadUsers();
-    Fire.$on('AfterCreate', function () {
-      _this2.loadUsers();
+    Fire.$on('AfterAction', function () {
+      _this4.loadUsers();
     }); // setInterval(() => this.loadUsers(), 3000);
   }
 });
@@ -59090,7 +59137,26 @@ var render = function() {
                   _vm._v(" "),
                   _c("td", [_vm._v(_vm._s(_vm._f("myDate")(user.created_at)))]),
                   _vm._v(" "),
-                  _vm._m(2, true)
+                  _c("td", [
+                    _vm._m(2, true),
+                    _vm._v(" "),
+                    _c(
+                      "a",
+                      {
+                        attrs: { href: "#" },
+                        on: {
+                          click: function($event) {
+                            _vm.deleteUser(user.id)
+                          }
+                        }
+                      },
+                      [
+                        _c("i", {
+                          staticClass: "list-action-icon fas fa-trash"
+                        })
+                      ]
+                    )
+                  ])
                 ])
               })
             ],
@@ -59369,14 +59435,8 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("td", [
-      _c("a", { attrs: { href: "#", alt: "Edit" } }, [
-        _c("i", { staticClass: "list-action-icon fas fa-edit" })
-      ]),
-      _vm._v(" "),
-      _c("a", { attrs: { href: "#", alt: "Delete" } }, [
-        _c("i", { staticClass: "list-action-icon fas fa-trash" })
-      ])
+    return _c("a", { attrs: { href: "#", alt: "Edit" } }, [
+      _c("i", { staticClass: "list-action-icon fas fa-edit" })
     ])
   },
   function() {
