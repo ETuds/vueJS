@@ -49,12 +49,13 @@
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Add New User</h5>
+                        <h5 v-show = "editmode"  class="modal-title" id="exampleModalLabel">Update User</h5>
+                        <h5 v-show = "!editmode"  class="modal-title" id="exampleModalLabel">Add New User</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <form @submit.prevent="editmode ? updateAction() : createAction()" >
+                    <form @submit.prevent = "editmode ? updateAction() : createAction()" >
                         <div class="modal-body">
                                 <div class="form-group">
                                     <label>Username</label>
@@ -83,7 +84,8 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-success">Add User</button>
+                            <button v-show = "editmode" type="submit" class="btn btn-success">Update</button>
+                            <button v-show = "!editmode"  type="submit" class="btn btn-success">Add User</button>
                         </div>
                     </form>
                 </div>
@@ -98,7 +100,8 @@
             return{
                 editmode : true,
                 users : {},
-                form: new Form({
+                form : new Form({
+                    id: "",
                     name: "",
                     email: "",
                     password: "",
@@ -107,15 +110,13 @@
             }  
         },
         methods:{
-            
-            updateAction(user){
-                console.log('Updatethis')
-            },
             loadAction(){
                 axios.get('api/user').then(({data}) => (this.users = data))
             },
             newAction(){
-                this.form.clear();
+                this.editmode = false;
+                this.form.reset();
+                console.log('create new');
                 $('#addNewModal').modal('show');
             },
             createAction(){
@@ -150,9 +151,38 @@
                 
             },
             editAction(user){
+                this.editmode = true;
                 this.form.reset();
                 $('#addNewModal').modal('show');
                 this.form.fill(user);
+
+            },
+            updateAction(){
+                console.log('Update this');
+                this.$Progress.start();
+                this.form.put('api/user/' + this.form.id)
+                .then(()=>{
+                        
+                    $('#addNewModal').modal('hide');
+                    Toast.fire(
+                    'Updated!',
+                    'User has been deleted.',
+                    'success'
+                    )
+                    this.$Progress.finish();
+                    Fire.$emit('AfterAction');
+                })
+                .catch(()=>{
+                    
+                    this.$Progress.fail();
+                    Toast.fire({
+                        type: 'error',
+                        title: 'Oops...',
+                        text: 'Something went wrong!'
+                        
+                    })
+                });
+                
             },
             deleteAction(id){
                 Toast.fire({
