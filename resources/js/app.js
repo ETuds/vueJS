@@ -11,14 +11,22 @@ window.Vue = require('vue');
 window.Form = Form;
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
-
+import VueProgressBar from 'vue-progressbar'
 import VueRouter from 'vue-router'
 import moment from 'moment'
+
 import { Form, HasError, AlertError } from 'vform'
 
 Vue.use(VueRouter)
+
 Vue.component(HasError.name, HasError)
 Vue.component(AlertError.name, AlertError)
+
+Vue.use(VueProgressBar, {
+    color: 'rgb(143, 255, 199)',
+    failedColor: 'red',
+    height: '2px'
+})
 
 const routes = [
     {path: '/dashboard',component: require('./components/Dashboard.vue').default}, 
