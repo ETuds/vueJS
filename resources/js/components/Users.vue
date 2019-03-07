@@ -5,7 +5,7 @@
                 <h3 class="card-title">Users</h3>
 
                 <div class="card-tools">
-                    <button class="btn btn-success" data-toggle="modal" data-target="#addNewModal">Add User <i class="fas fa-user-plus"></i></button>
+                    <button class="btn btn-success" @click="newAction()">Add User <i class="fas fa-user-plus"></i></button>
                 </div>
             </div>
             <div class="card-body table-responsive p-0">
@@ -27,10 +27,10 @@
                             <td>{{user.type | upText}}</td>
                             <td>{{user.created_at | myDate}}</td>
                             <td>
-                                <a href="#" alt="Edit">
+                                <a href="#" @click="editAction(user)">
                                     <i class="list-action-icon fas fa-edit"></i>
                                 </a>
-                                <a href="#" @click="deleteUser(user.id)">
+                                <a href="#" @click="deleteAction(user.id)">
                                     <i class="list-action-icon fas fa-trash"></i>
                                 </a>
                             </td>
@@ -49,12 +49,12 @@
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Add New</h5>
+                        <h5 class="modal-title" id="exampleModalLabel">Add New User</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <form @submit.prevent="createUser">
+                    <form @submit.prevent="editmode ? updateAction() : createAction()" >
                         <div class="modal-body">
                                 <div class="form-group">
                                     <label>Username</label>
@@ -95,23 +95,30 @@
 <script>
     export default {
         data(){
-          return{
-              users : {
-              },
-
-              form: new Form({
-                  name: "",
-                  email: "",
-                  password: ""
-              })
-          }  
+            return{
+                editmode : true,
+                users : {},
+                form: new Form({
+                    name: "",
+                    email: "",
+                    password: "",
+                    type: ""
+                })
+            }  
         },
         methods:{
             
-            loadUsers(){
+            updateAction(user){
+                console.log('Updatethis')
+            },
+            loadAction(){
                 axios.get('api/user').then(({data}) => (this.users = data))
             },
-            createUser(){
+            newAction(){
+                this.form.clear();
+                $('#addNewModal').modal('show');
+            },
+            createAction(){
                 this.$Progress.start();
                 this.form.post('api/user')
 
@@ -142,8 +149,12 @@
 
                 
             },
-            
-            deleteUser(id){
+            editAction(user){
+                this.form.reset();
+                $('#addNewModal').modal('show');
+                this.form.fill(user);
+            },
+            deleteAction(id){
                 Toast.fire({
                     title: 'Are you sure?',
                     text: "You won't be able to revert this!",
@@ -184,9 +195,9 @@
             }
         },
         mounted() {
-            this.loadUsers();
+            this.loadAction();
             Fire.$on('AfterAction',()=>{
-                this.loadUsers();
+                this.loadAction();
             });
             // setInterval(() => this.loadUsers(), 3000);
         }

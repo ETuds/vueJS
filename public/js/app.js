@@ -2006,16 +2006,21 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
+      editmode: true,
       users: {},
       form: new Form({
         name: "",
         email: "",
-        password: ""
+        password: "",
+        type: ""
       })
     };
   },
   methods: {
-    loadUsers: function loadUsers() {
+    updateAction: function updateAction(user) {
+      console.log('Updatethis');
+    },
+    loadAction: function loadAction() {
       var _this = this;
 
       axios.get('api/user').then(function (_ref) {
@@ -2023,7 +2028,11 @@ __webpack_require__.r(__webpack_exports__);
         return _this.users = data;
       });
     },
-    createUser: function createUser() {
+    newAction: function newAction() {
+      this.form.clear();
+      $('#addNewModal').modal('show');
+    },
+    createAction: function createAction() {
       var _this2 = this;
 
       this.$Progress.start();
@@ -2047,7 +2056,12 @@ __webpack_require__.r(__webpack_exports__);
         });
       });
     },
-    deleteUser: function deleteUser(id) {
+    editAction: function editAction(user) {
+      this.form.reset();
+      $('#addNewModal').modal('show');
+      this.form.fill(user);
+    },
+    deleteAction: function deleteAction(id) {
       var _this3 = this;
 
       Toast.fire({
@@ -2085,9 +2099,9 @@ __webpack_require__.r(__webpack_exports__);
   mounted: function mounted() {
     var _this4 = this;
 
-    this.loadUsers();
+    this.loadAction();
     Fire.$on('AfterAction', function () {
-      _this4.loadUsers();
+      _this4.loadAction();
     }); // setInterval(() => this.loadUsers(), 3000);
   }
 });
@@ -59116,14 +59130,31 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "col-12" }, [
     _c("div", { staticClass: "card" }, [
-      _vm._m(0),
+      _c("div", { staticClass: "card-header" }, [
+        _c("h3", { staticClass: "card-title" }, [_vm._v("Users")]),
+        _vm._v(" "),
+        _c("div", { staticClass: "card-tools" }, [
+          _c(
+            "button",
+            {
+              staticClass: "btn btn-success",
+              on: {
+                click: function($event) {
+                  _vm.newAction()
+                }
+              }
+            },
+            [_vm._v("Add User "), _c("i", { staticClass: "fas fa-user-plus" })]
+          )
+        ])
+      ]),
       _vm._v(" "),
       _c("div", { staticClass: "card-body table-responsive p-0" }, [
         _c("table", { staticClass: "table table-hover" }, [
           _c(
             "tbody",
             [
-              _vm._m(1),
+              _vm._m(0),
               _vm._v(" "),
               _vm._l(_vm.users.data, function(user) {
                 return _c("tr", { key: user.id }, [
@@ -59138,7 +59169,18 @@ var render = function() {
                   _c("td", [_vm._v(_vm._s(_vm._f("myDate")(user.created_at)))]),
                   _vm._v(" "),
                   _c("td", [
-                    _vm._m(2, true),
+                    _c(
+                      "a",
+                      {
+                        attrs: { href: "#" },
+                        on: {
+                          click: function($event) {
+                            _vm.editAction(user)
+                          }
+                        }
+                      },
+                      [_c("i", { staticClass: "list-action-icon fas fa-edit" })]
+                    ),
                     _vm._v(" "),
                     _c(
                       "a",
@@ -59146,7 +59188,7 @@ var render = function() {
                         attrs: { href: "#" },
                         on: {
                           click: function($event) {
-                            _vm.deleteUser(user.id)
+                            _vm.deleteAction(user.id)
                           }
                         }
                       },
@@ -59187,7 +59229,7 @@ var render = function() {
           },
           [
             _c("div", { staticClass: "modal-content" }, [
-              _vm._m(3),
+              _vm._m(1),
               _vm._v(" "),
               _c(
                 "form",
@@ -59195,7 +59237,7 @@ var render = function() {
                   on: {
                     submit: function($event) {
                       $event.preventDefault()
-                      return _vm.createUser($event)
+                      _vm.editmode ? _vm.updateAction() : _vm.createAction()
                     }
                   }
                 },
@@ -59383,7 +59425,7 @@ var render = function() {
                     )
                   ]),
                   _vm._v(" "),
-                  _vm._m(4)
+                  _vm._m(2)
                 ]
               )
             ])
@@ -59394,25 +59436,6 @@ var render = function() {
   ])
 }
 var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "card-header" }, [
-      _c("h3", { staticClass: "card-title" }, [_vm._v("Users")]),
-      _vm._v(" "),
-      _c("div", { staticClass: "card-tools" }, [
-        _c(
-          "button",
-          {
-            staticClass: "btn btn-success",
-            attrs: { "data-toggle": "modal", "data-target": "#addNewModal" }
-          },
-          [_vm._v("Add User "), _c("i", { staticClass: "fas fa-user-plus" })]
-        )
-      ])
-    ])
-  },
   function() {
     var _vm = this
     var _h = _vm.$createElement
@@ -59435,19 +59458,11 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("a", { attrs: { href: "#", alt: "Edit" } }, [
-      _c("i", { staticClass: "list-action-icon fas fa-edit" })
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
     return _c("div", { staticClass: "modal-header" }, [
       _c(
         "h5",
         { staticClass: "modal-title", attrs: { id: "exampleModalLabel" } },
-        [_vm._v("Add New")]
+        [_vm._v("Add New User")]
       ),
       _vm._v(" "),
       _c(
